@@ -6,7 +6,9 @@ import org.openrewrite.ExecutionContext;
 import org.openrewrite.Recipe;
 import org.openrewrite.TreeVisitor;
 import org.openrewrite.java.JavaIsoVisitor;
+import org.openrewrite.java.JavaParser;
 import org.openrewrite.java.JavaTemplate;
+import org.openrewrite.java.ShortenFullyQualifiedTypeReferences;
 import org.openrewrite.java.search.FindAnnotations;
 import org.openrewrite.java.tree.J;
 import org.openrewrite.java.tree.TypeTree;
@@ -38,25 +40,20 @@ public class AnnotateNullable extends Recipe {
     public class SayHelloVisitor extends JavaIsoVisitor<ExecutionContext> {
 
         @Override
-        public MethodDeclaration visitMethodDeclaration(MethodDeclaration method, ExecutionContext executionContext) {
-            if (FindAnnotations.find(method, "@org.jspecify.annotations.Nullable").isEmpty()) {
-                return JavaTemplate.apply(
-                        "@Nullable",
-                        getCursor(),
-                        method.getCoordinates().addAnnotation(Comparator.comparing(
-                                J.Annotation::getSimpleName, getKeyComparator()
-                        ))
-                );
+        public MethodDeclaration visitMethodDeclaration(MethodDeclaration methodDeclaration, ExecutionContext executionContext) {
+            if (!FindAnnotations.find(methodDeclaration, "@org.jspecify.annotations.Nullable").isEmpty()) {
+                return methodDeclaration;
             }
-            return super.visitMethodDeclaration(method, executionContext);
-        }
+            MethodDeclaration md = super.visitMethodDeclaration(methodDeclaration, executionContext);
 
-        private RuleBasedCollator getKeyComparator() {
-            try {
-                return new RuleBasedCollator("< Override");
-            } catch (ParseException e) {
-                throw new RuntimeException(e);
-            }
+            J.MethodDeclaration annotatedMethod = JavaTemplate.builder("@org.jspecify.annotations.Nullable")
+                    .javaParser(JavaParser.fromJavaVersion().dependsOn(
+                            String.format("package %s;public @interface %s {}", "org.jspecify.annotations", "Nullable")))
+                    .build()
+                    .apply(getCursor(), md.getCoordinates().addAnnotation(Comparator.comparing(J.Annotation::getSimpleName)));
+            doAfterVisit(ShortenFullyQualifiedTypeReferences.modifyOnly(annotatedMethod));
+            return annotatedMethod;
+
         }
     }
 }
