@@ -17,7 +17,34 @@ class JavaDocTransformTest implements RewriteTest {
 
     @DocumentExample
     @Test
-    void addNullableIfMethodReturnsNull() {
+    void removeMatchingText() {
+        rewriteRun(
+          java(
+            """              
+              /**
+               * Keep me
+               * Created by Alice
+               * Created by Bob
+               * Keep it
+               */
+              public class Test {
+              
+              }
+              """,
+            """              
+              /**
+               * Keep me
+               * Keep it
+               */
+              public class Test {
+              
+              }
+              """));
+    }
+
+    @DocumentExample
+    @Test
+    void removeEntireCommentInCaseNothingRemains() {
         rewriteRun(
           java(
             """              
