@@ -11,10 +11,7 @@ import org.openrewrite.java.JavaTemplate;
 import org.openrewrite.java.ShortenFullyQualifiedTypeReferences;
 import org.openrewrite.java.search.FindAnnotations;
 import org.openrewrite.java.tree.J;
-import org.openrewrite.java.tree.TypeTree;
 
-import java.text.ParseException;
-import java.text.RuleBasedCollator;
 import java.util.Comparator;
 
 import static org.openrewrite.java.tree.J.MethodDeclaration;
