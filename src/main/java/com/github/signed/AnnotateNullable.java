@@ -34,7 +34,7 @@ public class AnnotateNullable extends Recipe {
         return new SayHelloVisitor();
     }
 
-    public class SayHelloVisitor extends JavaIsoVisitor<ExecutionContext> {
+    public static class SayHelloVisitor extends JavaIsoVisitor<ExecutionContext> {
 
         @Override
         public MethodDeclaration visitMethodDeclaration(MethodDeclaration methodDeclaration, ExecutionContext executionContext) {
