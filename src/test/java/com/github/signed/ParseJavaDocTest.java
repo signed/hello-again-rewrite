@@ -26,7 +26,20 @@ public class ParseJavaDocTest implements RewriteTest {
         spec.recipe(new JavadocReproducer());
     }
 
-
+    /**
+     * When looking at the Javadoc.DocComment.body() I'm surprised
+     * to see three elements for the second line
+     * <ol>
+     *     <li>Javadoc.Text(text=" ")
+     *     <li>Javadoc.Text(text="2nd line")</li>
+     *     <li>LineBreak=()</li></li>
+     * </ol>
+     * I expected only two (like for 3rd line)
+     * <ol>
+     *     <li>Javadoc.Text(text=" 2nd line")</li>
+     *     <li>LineBreak=()</li>
+     * </ol>
+     */
     @Test
     void firstLineIsParsedInTwoSeparateText() {
         rewriteRun(
